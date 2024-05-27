@@ -9,5 +9,5 @@ fn main() {
     io::stdin().read_line(&mut input).unwrap();
 
     let command = input.trim();
-    print!("nonexistent: {command} not found\n");
+    print!("{command}: command not found\n");
 }
