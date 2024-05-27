@@ -12,12 +12,12 @@ fn main() {
 
         stdin.read_line(&mut input).unwrap();
         
-        let command = input.clone();
+        let input = input.trim();
         let tokens = tokenize(&input);
 
         match tokens[..] {
             ["exit", code] => process::exit(code.parse::<i32>().unwrap()),
-            _ => println!("{command}: command not found")
+            _ => println!("{input}: command not found")
         }
     }
 }
