@@ -8,12 +8,12 @@ fn main() {
     let mut input = String::new();
 
     loop {
-        print!("$ ");
-        io::stdout().flush().unwrap();
-        
         io::stdin().read_line(&mut input).unwrap();
 
         let command = input.trim();
         print!("{command}: command not found\n");
+
+        print!("$ ");
+        io::stdout().flush().unwrap();
     }
 }
