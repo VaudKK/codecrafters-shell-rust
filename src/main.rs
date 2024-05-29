@@ -30,7 +30,7 @@ fn run(command: String){
 
 fn get_type(command: &str){
     match command {
-        "exit" | "echo" => println!("{} is a shell builtin", command),
+        "exit" | "echo" | "type" => println!("{} is a shell builtin", command),
         &_ => println!("{} not found",command)
     }
 }
