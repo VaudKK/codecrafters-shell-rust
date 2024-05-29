@@ -23,6 +23,14 @@ fn run(command: String){
     match tokens[0] {
         "exit" => process::exit(tokens[1].parse::<i32>().unwrap()),
         "echo" => print!("{}\n", tokens[1..].join(" ")),
+        "type" =>  get_type(tokens[1]),
         &_ => println!("{}: command not found",tokens[0])
+    }
+}
+
+fn get_type(command: &str){
+    match command {
+        "exit" | "echo" => println!("{} is a shell builtin", command),
+        &_ => println!("{} not found",command)
     }
 }
