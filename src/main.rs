@@ -60,7 +60,7 @@ fn command_exists(command: &str) -> Option<String>{
 
     for path in path_vect {
         let mut full_path = Path::new(&path).join(command);
-        full_path.set_extension("exe");
+        full_path.set_extension("");
 
         if full_path.exists(){
             return Some(String::from(full_path.to_str().unwrap()))
