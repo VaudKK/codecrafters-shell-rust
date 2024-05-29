@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 use std::io::{self, Write};
-use std::process;
+use std::{env, path::Path, process};
 
 fn main() {
     loop {
@@ -31,6 +31,29 @@ fn run(command: String){
 fn get_type(command: &str){
     match command {
         "exit" | "echo" | "type" => println!("{} is a shell builtin", command),
-        &_ => println!("{} not found",command)
+        &_ => get_system_command(command)
     }
+}
+
+fn get_system_command(command: &str){
+    let path_var = env::var("PATH").unwrap_or_default();
+    
+    let path_vect: Vec<&str> = path_var.split(':').collect();
+
+    let mut found = false;
+    for path in path_vect {
+        let mut full_path = Path::new(path).join(command);
+        full_path.set_extension("");
+
+        if full_path.exists(){
+            println!("{} is {}", command, full_path.display());
+            found = true;
+            break;
+        }
+    }
+
+    if !found {
+        println!("{}: not found", command);
+    }
+
 }
