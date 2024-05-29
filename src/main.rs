@@ -24,36 +24,55 @@ fn run(command: String){
         "exit" => process::exit(tokens[1].parse::<i32>().unwrap()),
         "echo" => print!("{}\n", tokens[1..].join(" ")),
         "type" =>  get_type(tokens[1]),
-        &_ => println!("{}: command not found",tokens[0])
+        &_ => {
+            let command = command_exists(tokens[0]);
+            match command {
+                Some(cmd) => {
+                    let mut child = process::Command::new(cmd)
+                    .args(tokens[1..].into_iter())
+                    .stdout(std::io::stdout())
+                    .spawn()
+                    .unwrap();
+                child.wait().unwrap();
+                },
+                None => println!("{}: command not found", tokens[0])
+            }
+        }
     }
 }
 
 fn get_type(command: &str){
     match command {
         "exit" | "echo" | "type" => println!("{} is a shell builtin", command),
-        &_ => get_system_command(command)
+        &_ => {
+            let path = command_exists(command);
+
+            match path {
+                Some(exists) => println!("{} is {}", command,exists),
+                None => println!("{}: command not found", command)
+            }
+        }
     }
 }
 
-fn get_system_command(command: &str){
-    let path_var = env::var("PATH").unwrap_or_default();
-    
-    let path_vect: Vec<&str> = path_var.split(':').collect();
+fn command_exists(command: &str) -> Option<String>{
+    let path_vect = get_paths();
 
-    let mut found = false;
     for path in path_vect {
-        let mut full_path = Path::new(path).join(command);
-        full_path.set_extension("");
+        let mut full_path = Path::new(&path).join(command);
+        full_path.set_extension("exe");
 
         if full_path.exists(){
-            println!("{} is {}", command, full_path.display());
-            found = true;
-            break;
+            return Some(String::from(full_path.to_str().unwrap()))
         }
     }
 
-    if !found {
-        println!("{}: not found", command);
-    }
+    None
+}
 
+fn get_paths() -> Vec<String>{
+    let path_var = env::var("PATH").unwrap_or_default();
+
+    //for windows use ;
+    path_var.split(":").map(String::from).collect()
 }
