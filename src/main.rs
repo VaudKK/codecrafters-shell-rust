@@ -13,15 +13,16 @@ fn main() {
         stdin.read_line(&mut input).unwrap();
         
         let input = input.trim();
-        let tokens = tokenize(&input);
-
-        match tokens[..] {
-            ["exit", code] => process::exit(code.parse::<i32>().unwrap()),
-            _ => println!("{input}: command not found")
-        }
+        run(input.to_string());
     }
 }
 
-fn tokenize(command: &str) -> Vec<&str>{
-    command.split(" ").collect()
+fn run(command: String){
+    let tokens: Vec<&str> = command.split_whitespace().collect();
+
+    match tokens[0] {
+        "exit" => process::exit(tokens[1].parse::<i32>().unwrap()),
+        "echo" => print!("{}\n", tokens[1..].join(" ")),
+        &_ => println!("{}: command not found",tokens[0])
+    }
 }
