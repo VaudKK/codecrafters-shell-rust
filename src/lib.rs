@@ -82,7 +82,7 @@ pub fn handle_cd_command(tokens: Vec<&str>){
     let _args: Vec<&str>;
     if tokens.len() > 1 {
         if std::env::set_current_dir(Path::new(tokens[1])).is_err() {
-            print!("cd: {}: No such file or directory", tokens[1]);
+            print!("{}: No such file or directory", tokens[1]);
             process::exit(0);
         }
     }  
