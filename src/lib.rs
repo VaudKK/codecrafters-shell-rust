@@ -74,3 +74,20 @@ pub fn handle_unknown_command(tokens: Vec<&str>){
         None => println!("{}: command not found", tokens[0])
     }
 }
+
+pub fn handle_cd_command(tokens: Vec<&str>){
+    let args: Vec<&str>;
+    if tokens.len() == 1 {
+        args = Vec::new();
+    }else{
+        if std::env::set_current_dir(Path::new(tokens[1])).is_err() {
+            print!("cd: {}: No such file or directory", tokens[1]);
+            process::exit(0);
+        }
+        args = tokens[1..].to_vec();
+    }
+
+    
+    let proc = run_system_command("cd",args);
+    handle_system_cmd_result(proc);
+}

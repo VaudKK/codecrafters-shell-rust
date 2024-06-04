@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use shell_starter_rust::{self as util, handle_unknown_command};
+use shell_starter_rust as util;
 
 fn main() {
     loop {
@@ -28,17 +28,7 @@ fn run(command: String){
             let proc = util::run_system_command("pwd", Vec::new());
             util::handle_system_cmd_result(proc);
         },
-        "cd" => {
-            let args: Vec<&str>;
-            if tokens.len() == 1 {
-                args = Vec::new();
-            }else{
-                args = tokens[1..].to_vec();
-            }
-
-            let proc = util::run_system_command("cd",args);
-            util::handle_system_cmd_result(proc);
-        },
-        &_ => handle_unknown_command(tokens)
+        "cd" => util::handle_cd_command(tokens),
+        &_ => util::handle_unknown_command(tokens)
     };
 }
