@@ -19,6 +19,9 @@ pub fn command_exists(command: &str) -> Option<String>{
 
     for path in path_vect {
         let mut full_path = Path::new(&path).join(command);
+
+        //for windows set extension to exe
+        //for unix set extension to ""
         full_path.set_extension("");
 
         if full_path.exists(){
@@ -47,12 +50,12 @@ pub fn run_system_command(command: &str, args: Vec<&str>) -> Result<Child,Error>
 pub fn handle_system_cmd_result(rslt: Result<Child,Error>){
     let mut result = rslt.unwrap_or_else(|err| {
         eprintln!("Error executing command: {err}");
-        process::exit(1);
+        process::exit(0);
     });
 
     result.wait().unwrap_or_else(|err|{
         eprintln!("Error executing child process: {err}");
-        process::exit(1);
+        process::exit(0);
     });
 }
 
@@ -76,18 +79,11 @@ pub fn handle_unknown_command(tokens: Vec<&str>){
 }
 
 pub fn handle_cd_command(tokens: Vec<&str>){
-    let args: Vec<&str>;
-    if tokens.len() == 1 {
-        args = Vec::new();
-    }else{
+    let _args: Vec<&str>;
+    if tokens.len() > 1 {
         if std::env::set_current_dir(Path::new(tokens[1])).is_err() {
             print!("cd: {}: No such file or directory", tokens[1]);
             process::exit(0);
         }
-        args = tokens[1..].to_vec();
-    }
-
-    
-    let proc = run_system_command("cd",args);
-    handle_system_cmd_result(proc);
+    }  
 }

@@ -7,10 +7,9 @@ fn main() {
         print!("$ ");
         io::stdout().flush().unwrap();
 
-        let stdin =  io::stdin();
         let mut input = String::new();
 
-        stdin.read_line(&mut input).unwrap();
+        io::stdin().read_line(&mut input).unwrap();
         
         let input = input.trim();
         run(input.to_string());
