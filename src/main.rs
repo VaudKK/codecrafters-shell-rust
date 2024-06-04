@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 use std::io::{self, Write};
-use std::{env, path::Path, process};
+use std::{env, io::Error, path::Path, process::{self, Child}};
 
 fn main() {
     loop {
@@ -21,18 +21,28 @@ fn run(command: String){
     let tokens: Vec<&str> = command.split_whitespace().collect();
 
     match tokens[0] {
-        "exit" => process::exit(tokens[1].parse::<i32>().unwrap()),
+        "exit" => {
+            if tokens.len() > 1 {
+                process::exit(tokens[1].parse::<i32>().unwrap());
+            }else{
+                process::exit(0);
+            }
+        },
         "echo" => print!("{}\n", tokens[1..].join(" ")),
         "type" =>  get_type(tokens[1]),
+        "pwd" => {
+            let proc = run_system_command("pwd", Vec::new());
+            proc.unwrap().wait().unwrap();
+        },
         &_ => {
             let command = command_exists(tokens[0]);
             match command {
                 Some(cmd) => {
-                    let mut child = process::Command::new(cmd)
-                    .args(tokens[1..].into_iter())
-                    .stdout(std::io::stdout())
-                    .spawn()
-                    .unwrap();
+                    let mut child = run_system_command(&cmd, tokens[1..].to_vec())
+                    .unwrap_or_else(|err|  {
+                        eprintln!("Error executing command: {err}");
+                        process::exit(1);
+                    });
                 child.wait().unwrap();
                 },
                 None => println!("{}: command not found", tokens[0])
@@ -75,4 +85,12 @@ fn get_paths() -> Vec<String>{
 
     //for windows use ;
     path_var.split(":").map(String::from).collect()
+}
+
+
+fn run_system_command(command: &str, args: Vec<&str>) -> Result<Child,Error>{
+    process::Command::new(command)
+        .args(args.into_iter())
+        .stdout(std::io::stdout())
+        .spawn()
 }
