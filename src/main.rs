@@ -1,6 +1,6 @@
-#[allow(unused_imports)]
 use std::io::{self, Write};
-use std::{env, io::Error, path::Path, process::{self, Child}};
+
+use shell_starter_rust::{self as util, handle_unknown_command};
 
 fn main() {
     loop {
@@ -21,76 +21,24 @@ fn run(command: String){
     let tokens: Vec<&str> = command.split_whitespace().collect();
 
     match tokens[0] {
-        "exit" => {
-            if tokens.len() > 1 {
-                process::exit(tokens[1].parse::<i32>().unwrap());
-            }else{
-                process::exit(0);
-            }
-        },
+        "exit" => util::handle_exit(tokens),
         "echo" => print!("{}\n", tokens[1..].join(" ")),
-        "type" =>  get_type(tokens[1]),
+        "type" =>  util::get_type(tokens[1]),
         "pwd" => {
-            let proc = run_system_command("pwd", Vec::new());
-            proc.unwrap().wait().unwrap();
+            let proc = util::run_system_command("pwd", Vec::new());
+            util::handle_system_cmd_result(proc);
         },
-        &_ => {
-            let command = command_exists(tokens[0]);
-            match command {
-                Some(cmd) => {
-                    let mut child = run_system_command(&cmd, tokens[1..].to_vec())
-                    .unwrap_or_else(|err|  {
-                        eprintln!("Error executing command: {err}");
-                        process::exit(1);
-                    });
-                child.wait().unwrap();
-                },
-                None => println!("{}: command not found", tokens[0])
+        "cd" => {
+            let args: Vec<&str>;
+            if tokens.len() == 1 {
+                args = Vec::new();
+            }else{
+                args = tokens[1..].to_vec();
             }
-        }
-    }
-}
 
-fn get_type(command: &str){
-    match command {
-        "exit" | "echo" | "type" => println!("{} is a shell builtin", command),
-        &_ => {
-            let path = command_exists(command);
-
-            match path {
-                Some(exists) => println!("{} is {}", command,exists),
-                None => println!("{} not found", command)
-            }
-        }
-    }
-}
-
-fn command_exists(command: &str) -> Option<String>{
-    let path_vect = get_paths();
-
-    for path in path_vect {
-        let mut full_path = Path::new(&path).join(command);
-        full_path.set_extension("");
-
-        if full_path.exists(){
-            return Some(String::from(full_path.to_str().unwrap()))
-        }
-    }
-
-    None
-}
-
-fn get_paths() -> Vec<String>{
-    let path_var = env::var("PATH").unwrap_or_default();
-
-    //for windows use ;
-    path_var.split(":").map(String::from).collect()
-}
-
-
-fn run_system_command(command: &str, args: Vec<&str>) -> Result<Child,Error>{
-    process::Command::new(command)
-        .args(args.into_iter())
-        .stdout(std::io::stdout())
-        .spawn()
+            let proc = util::run_system_command("cd",args);
+            util::handle_system_cmd_result(proc);
+        },
+        &_ => handle_unknown_command(tokens)
+    };
 }
