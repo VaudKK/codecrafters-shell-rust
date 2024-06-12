@@ -86,9 +86,9 @@ pub fn handle_cd_command(tokens: Vec<&str>){
         _ => run_system_command("cd", tokens[1..].to_vec())
     };
 
-    if tokens.len() > 1 {
-        if std::env::set_current_dir(Path::new(tokens[1])).is_err() {
-            println!("{}: No such file or directory", tokens[1]);
-        }
-    }  
+    // if tokens.len() > 1 {
+    //     if std::env::set_current_dir(Path::new(tokens[1])).is_err() {
+    //         println!("{}: No such file or directory", tokens[1]);
+    //     }
+    // }  
 }
