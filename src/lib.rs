@@ -82,13 +82,19 @@ pub fn handle_unknown_command(tokens: Vec<&str>){
 pub fn handle_cd_command(tokens: Vec<&str>){
     let _args: Vec<&str>;
     let _rslt = match tokens[1..] {
-        ["~"] => run_system_command("cd", tokens[1..2].to_vec()),
-        _ => run_system_command("cd", tokens[1..].to_vec())
-    };
+        ["~"] => {
+            let home = env::var("HOME").unwrap();
+            let path = Path::new(&home);
 
-    // if tokens.len() > 1 {
-    //     if std::env::set_current_dir(Path::new(tokens[1])).is_err() {
-    //         println!("{}: No such file or directory", tokens[1]);
-    //     }
-    // }  
+            if let Err(_) = env::set_current_dir(&path) {
+                eprintln!("{}: No such file or directory", tokens[1]);
+            }
+            return;
+        },
+        _ => {
+            if std::env::set_current_dir(Path::new(tokens[1])).is_err() {
+                println!("{}: No such file or directory", tokens[1]);
+            }
+        }
+    }; 
 }
