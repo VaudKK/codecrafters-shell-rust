@@ -8,7 +8,7 @@ pub fn get_type(command: &str){
 
             match path {
                 Some(exists) => println!("{} is {}", command,exists),
-                None => println!("{} not found", command)
+                None => println!("{}: not found", command)
             }
         }
     }
