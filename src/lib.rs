@@ -81,7 +81,7 @@ pub fn handle_unknown_command(tokens: Vec<&str>){
 
 pub fn handle_cd_command(tokens: Vec<&str>){
     let _args: Vec<&str>;
-    let rslt = match tokens[1..] {
+    let _rslt = match tokens[1..] {
         ["~"] => run_system_command("cd", tokens[1..2].to_vec()),
         _ => run_system_command("cd", tokens[1..].to_vec())
     };
